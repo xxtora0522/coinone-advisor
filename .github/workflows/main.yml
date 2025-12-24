@@ -1,0 +1,40 @@
+name: Coinone Daily Advisor
+
+on:
+  schedule:
+    # 매일 오전 9시 (JST = UTC+9 → UTC 00:00)
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 수동 실행도 가능
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run advisor
+        run: node --loader ts-node/esm index.ts
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          QUOTE_CURRENCY: ${{ secrets.QUOTE_CURRENCY }}
+          TOP_N: ${{ secrets.TOP_N }}
+          STRATEGY_MODE: ${{ secrets.STRATEGY_MODE }}
+          EMA_PERIOD: ${{ secrets.EMA_PERIOD }}
+          VOL_SMA_PERIOD: ${{ secrets.VOL_SMA_PERIOD }}
+          VOL_MULTIPLIER_A: ${{ secrets.VOL_MULTIPLIER_A }}
+          USE_BREAKOUT_A: ${{ secrets.USE_BREAKOUT_A }}
+          BREAKOUT_LOOKBACK: ${{ secrets.BREAKOUT_LOOKBACK }}
+          PULLBACK_LOOKBACK_B: ${{ secrets.PULLBACK_LOOKBACK_B }}
+          PULLBACK_BAND_PCT_B: ${{ secrets.PULLBACK_BAND_PCT_B }}
+          REQUIRE_UPDAY_B: ${{ secrets.REQUIRE_UPDAY_B }}
