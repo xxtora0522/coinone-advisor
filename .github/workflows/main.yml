@@ -1,26 +1,29 @@
-name: Coinone Advisor Daily
+name: Coinone Daily Advisor
 
 on:
   schedule:
-    # 매일 09:00 JST (00:00 UTC)
+    # 매일 오전 9시 (JST = UTC+9 → UTC 00:00)
     - cron: "0 0 * * *"
-  workflow_dispatch:
+  workflow_dispatch: # 수동 실행도 가능
 
 jobs:
   run:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run advisor
-        run: npm run start
+        run: node --loader ts-node/esm index.ts
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
